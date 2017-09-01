@@ -1,6 +1,6 @@
 # tdrdiff
 
-Create an handy pdf diff for TDR repository based on different svn revisions.
+Create a handy pdf diff for TDR repository based on different svn revisions.
 
 Original instructions provided by Ferenc Sikler.
 
