@@ -8,7 +8,8 @@ Similar implementation available here https://twiki.cern.ch/twiki/bin/view/Main/
 
 # EXAMPLE of USAGE:
 
-\# Currently the script assumes that all the modifications are pushed to SVN before to run. Please commit before to use!
+\# The script requires that all the modifications are pushed to SVN before to run, otherwise will not run.
+\# Please commit before to use!
 
 cd tdr2/notes-or-papers/CADI-YY-XXX/trunk
 
