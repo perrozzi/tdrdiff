@@ -1,6 +1,10 @@
 # tdrdiff
 
-Create an handy pdf diff for TDR repository based on different svn revisions
+Create an handy pdf diff for TDR repository based on different svn revisions.
+
+Original instructions provided by Ferenc Sikler.
+
+Similar implementation available here https://twiki.cern.ch/twiki/bin/view/Main/TdrDiffInstr
 
 # EXAMPLE of USAGE:
 cd tdr2/notes-or-papers/CADI-YY-XXX/trunk
