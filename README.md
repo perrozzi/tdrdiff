@@ -5,7 +5,7 @@ Create an handy pdf diff for TDR repository based on different svn revisions
 # EXAMPLE of USAGE:
 cd tdr2/notes-or-papers/CADI-YY-XXX/trunk
 
-wget https://github.com/perrozzi/tdrdiff/archive/master.zip
+wget -O master.zip https://github.com/perrozzi/tdrdiff/archive/master.zip
 
 unzip -p master.zip make_diff.sh > make_diff.sh
 
