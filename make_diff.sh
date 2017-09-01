@@ -3,7 +3,7 @@
 # EXAMPLE USAGE:
 # sh make_diff.sh HIG-16-044.tex 422219 HEAD
 
-note_papers="papers" # "papers" (for actual papers) or "notes" (for AN/PAS)
+note_papers=`echo $PWD | rev | cut -d'/' -f 3 | rev`
 
 rm  auto_generated.bst BigDraft.pdf cms_draft_paper.pdf cms-tdr.cls pdfdraftcopy.sty pennames-pazo.sty ptdr-definitions.sty changepage.sty
 
@@ -41,6 +41,9 @@ ln -s ../../../utils/trunk/general/pennames-pazo.sty .
 ln -s ../../../utils/trunk/general/ptdr-definitions.sty .
 ln -s ../../../utils/trunk/general/changepage.sty .
 
+# download missing packages
+wget -r -nH --cut-dirs=7 -nc ftp://ftp.tug.org/texlive/Contents/live/texmf-dist/tex/latex/adjustbox/
+wget -r -nH --cut-dirs=7 -nc ftp://ftp.tug.org/texlive/Contents/live/texmf-dist/tex/latex/collectbox/
 
 # create the diff
 wget -O latexdiff-so http://mirror.switch.ch/ftp/mirror/tex/support/latexdiff/latexdiff-so
@@ -55,5 +58,6 @@ pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex
 pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
 
 # remove symbolic links
+rm diff_${texfile}_${svnold}_${svnnew}.aux diff_${texfile}_${svnold}_${svnnew}.out diff_${texfile}_${svnold}_${svnnew}.tex diff_${texfile}_${svnold}_${svnnew}.bbl
 rm  auto_generated.bst BigDraft.pdf cms_draft_paper.pdf cms-tdr.cls pdfdraftcopy.sty pennames-pazo.sty ptdr-definitions.sty changepage.sty
 mv auto_generated.bib.bkp auto_generated.bib
