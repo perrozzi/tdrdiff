@@ -7,6 +7,9 @@ Original instructions provided by Ferenc Sikler.
 Similar implementation available here https://twiki.cern.ch/twiki/bin/view/Main/TdrDiffInstr
 
 # EXAMPLE of USAGE:
+
+\# Currently the script assumes that all the modifications are pushed to SVN before to run. Please commit before to use!
+
 cd tdr2/notes-or-papers/CADI-YY-XXX/trunk
 
 wget -O master.zip https://github.com/perrozzi/tdrdiff/archive/master.zip
