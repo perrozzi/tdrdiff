@@ -52,10 +52,10 @@ chmod +x latexdiff-so
 ./latexdiff-so old_temp.bbl new_temp.bbl > diff_${texfile}_${svnold}_${svnnew}.bbl
 
 
-pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
-# bibtex    diff_${texfile}_${svnold}_${svnnew}
-pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
-pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
+yes "" | pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
+# yes "" | bibtex    diff_${texfile}_${svnold}_${svnnew}
+yes "" | pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
+yes "" | pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
 
 # remove symbolic links
 mv auto_generated.bib.bkp auto_generated.bib
