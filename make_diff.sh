@@ -3,6 +3,12 @@
 # EXAMPLE USAGE:
 # sh make_diff.sh HIG-16-044.tex 422219 HEAD
 
+# detect any uncommited modification
+if [[ -n $(svn status -q . | awk '$1 ~ /[!?ABCDGKLMORST]/') ]]; then
+    echo "The working copy at $(pwd) appears to have local modifications, commit before to run!"
+    exit 1
+fi
+
 # detect whether it's a note or a paper from the working path
 note_papers=`echo $PWD | rev | cut -d'/' -f 3 | rev`
 
