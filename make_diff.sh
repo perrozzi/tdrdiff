@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# EXAMPLE USAGE:
-# sh make_diff.sh HIG-16-044.tex 422219 HEAD
+# check the number of arguments
+if [ "$#" -ne 3 ]; then
+    echo "Illegal number of parameters. Example of usage:"
+    echo "sh make_diff.sh HIG-16-044.tex 422219 422423"
+    exit 1
+fi
 
 # detect any uncommited modification
 if [[ -n $(svn status -q . | awk '$1 ~ /[!?ABCDGKLMORST]/') ]]; then
