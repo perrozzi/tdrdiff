@@ -39,6 +39,7 @@ cc flatex.c -o flatex
 svn up -r ${svnold}
 cp ${texfile}.tex ${texfile}.tex.bkp
 ./flatex ${texfile}.tex > /dev/null
+sed -i -- 's/\%FLATEX\-REM\://g' ${texfile}.flt
 mv ${texfile}.flt ${texfile}.tex
 cp ${texfile}.tex old.tex
 ../../tdr --draft --copyPdf=old.pdf --style=paper b old
@@ -50,6 +51,7 @@ cp ${texfile}.tex.bkp ${texfile}.tex
 svn up -r ${svnnew}
 cp ${texfile}.tex ${texfile}.tex.bkp
 ./flatex ${texfile}.tex > /dev/null
+sed -i -- 's/\%FLATEX\-REM\://g' ${texfile}.flt
 mv ${texfile}.flt ${texfile}.tex
 cp ${texfile}.tex new.tex
 ../../tdr --draft --copyPdf=new.pdf --style=paper b new
