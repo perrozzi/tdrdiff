@@ -19,20 +19,38 @@ rm  auto_generated.bst BigDraft.pdf cms_draft_paper.pdf cms-tdr.cls pdfdraftcopy
 texfile="$1"
 svnold="$2"
 svnnew="$3"
+
+# if needed, convert HEAD to the actual commit
+if [ $svnnew = "HEAD" ]; then
+svnnew=`svn up -r HEAD | awk '{ print $3 }'`
+svnnew="${svnnew%?}"
+fi
+
 # strip the tex file extension
 texfile="${texfile//.tex/}"
 
 echo "Building diff between svn revision ${svnold} and ${svnnew} for ${note_papers} CADI entry ${texfile}"
 
+# download and compile the "flattener" to parse all \input{file} in the main file
+wget -O flatex.c http://mirrors.ctan.org/support/flatex/flatex.c
+cc flatex.c -o flatex
+
 # update the repository to the "old" svn revision and compile the corresponding "old" pdf
 svn up -r ${svnold}
+cp ${texfile}.tex ${texfile}.tex.bkp
+./flatex ${texfile}.tex > /dev/null
+mv ${texfile}.flt ${texfile}.tex
 cp ${texfile}.tex old.tex
 ../../tdr --draft --copyPdf=old.pdf --style=paper b old
 cp ../../../${note_papers}/tmp/old_temp.tex .
 cp ../../../${note_papers}/tmp/old_temp.bbl old_temp.bbl
 
 # update the repository to the "new" svn revision and compile the corresponding "new" pdf
+cp ${texfile}.tex.bkp ${texfile}.tex
 svn up -r ${svnnew}
+cp ${texfile}.tex ${texfile}.tex.bkp
+./flatex ${texfile}.tex > /dev/null
+mv ${texfile}.flt ${texfile}.tex
 cp ${texfile}.tex new.tex
 ../../tdr --draft --copyPdf=new.pdf --style=paper b new
 cp ../../../${note_papers}/tmp/new_temp.tex .
@@ -71,8 +89,11 @@ yes "" | pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex
 
 # restore original auto_generated.bib
 mv auto_generated.bib.bkp auto_generated.bib
+mv ${texfile}.tex.bkp ${texfile}.tex
 # cleanup: remove unused files and symbolic links
 rm diff_${texfile}_${svnold}_${svnnew}.aux diff_${texfile}_${svnold}_${svnnew}.out diff_${texfile}_${svnold}_${svnnew}.tex diff_${texfile}_${svnold}_${svnnew}.bbl diff_${texfile}_${svnold}_${svnnew}.blg
 rm auto_generated.bst BigDraft.pdf cms_draft_paper.pdf cms-tdr.cls pdfdraftcopy.sty pennames-pazo.sty ptdr-definitions.sty changepage.sty
 rm old.tex old_temp.tex old_temp.bbl new.tex new_temp.tex new_temp.bbl old_auto.pdf new_auto.pdf
 rm -f trimclip.sty tc-xetex.def tc-pgf.def tc-pdftex.def tc-dvips.def collectbox.sty adjustbox.sty adjcalc.sty latexdiff-so
+
+svn up -r HEAD
