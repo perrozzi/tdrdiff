@@ -94,6 +94,7 @@ yes "" | pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex
 yes "" | pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
 
 # restore original auto_generated.bib
+rm auto_generated.bib
 mv auto_generated.bib.bkp auto_generated.bib
 mv ${texfile}.tex.bkp ${texfile}.tex
 # cleanup: remove unused files and symbolic links
