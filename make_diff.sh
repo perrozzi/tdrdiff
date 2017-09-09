@@ -1,28 +1,51 @@
 #!/bin/bash
 
 # check the number of arguments
-if [ "$#" -ne 3 ]; then
+if [ "$#" -lt 3 ]; then
     echo "Illegal number of parameters. Example of usage:"
-    echo "sh make_diff.sh HIG-16-044.tex 422219 422423"
+    echo "sh make_diff.sh HIG-16-044.tex 422219 422423 [cleanup]"
     exit 1
 fi
-
-# detect any uncommited modification
-if [[ -n $(svn status -q . | awk '$1 ~ /[!?ABCDGKLMORST]/') ]]; then
-    echo "The working copy at $(pwd) appears to have local modifications, commit before to run!"
-    exit 1
-fi
-
-# detect whether it's a note or a paper from the working path
-note_papers=`echo $PWD | rev | cut -d'/' -f 3 | rev`
-
-# dummy deletion of pre-existing symbolic links that could be present
-rm  auto_generated.bst BigDraft.pdf cms_draft_paper.pdf cms-tdr.cls pdfdraftcopy.sty pennames-pazo.sty ptdr-definitions.sty changepage.sty
 
 # defined target tex file and svn revisions to compare
 texfile="$1"
 svnold="$2"
 svnnew="$3"
+
+if [ -n "$4"  ]; then
+    if [ "$4" != "cleanup" ]; then
+        echo "Illegal name of 4th parameter. If used, it must be called \"cleanup\""
+    else
+        echo "Cleanup"
+        # restore original auto_generated.bib
+        if [ -f auto_generated.bib.bkp ]; then
+            rm auto_generated.bib
+            mv auto_generated.bib.bkp auto_generated.bib
+        fi
+        if [ -f ${texfile}.tex.bkp ]; then
+            mv ${texfile}.tex.bkp ${texfile}.tex
+        fi
+        # cleanup: remove unused files and symbolic links
+        rm diff_${texfile}_${svnold}_${svnnew}.aux diff_${texfile}_${svnold}_${svnnew}.out diff_${texfile}_${svnold}_${svnnew}.bbl diff_${texfile}_${svnold}_${svnnew}.blg
+        # rm diff_${texfile}_${svnold}_${svnnew}.tex 
+        rm auto_generated.bst BigDraft.pdf cms_draft_paper.pdf cms-tdr.cls pdfdraftcopy.sty pennames-pazo.sty ptdr-definitions.sty changepage.sty
+        rm old.tex old_temp.tex old_temp.bbl new.tex new_temp.tex new_temp.bbl old_auto.pdf new_auto.pdf
+        rm -f trimclip.sty tc-xetex.def tc-pgf.def tc-pdftex.def tc-dvips.def collectbox.sty adjustbox.sty adjcalc.sty latexdiff-so flatex
+
+        svn up -r HEAD
+        echo "Restore modified files if necessary"
+    fi
+    exit 1
+else
+    # detect any uncommited modification
+    if [[ -n $(svn status -q . | awk '$1 ~ /[!?ABCDGKLMORST]/') ]]; then
+        echo "The working copy at $(pwd) appears to have local modifications, commit before to run!"
+        exit 1
+    fi
+fi
+
+# detect whether it's a note or a paper from the working path
+note_papers=`echo $PWD | rev | cut -d'/' -f 3 | rev`
 
 # if needed, convert HEAD to the actual commit
 if [ $svnnew = "HEAD" ]; then
