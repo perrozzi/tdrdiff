@@ -30,7 +30,7 @@ sh make_diff.sh CADI-YY-XXX.tex 422219 432319
 
 sh make_diff.sh HIG-16-044.tex 422219 HEAD
 
-echo "sh make_diff.sh HIG-16-044.tex v1 v2  \# (only possible for papers, not notes/PAS)
+echo "sh make_diff.sh HIG-16-044.tex v1 v2    \#(only possible for papers, not notes/PAS)
 
 
 # EXAMPLE of OUTPUT:
