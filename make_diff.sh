@@ -4,6 +4,8 @@
 if [ "$#" -ne 3 ]; then
     echo "Illegal number of parameters. Example of usage:"
     echo "sh make_diff.sh HIG-16-044.tex 422219 422423"
+    echo "sh make_diff.sh HIG-16-044.tex 422219 HEAD"
+    echo "sh make_diff.sh HIG-16-044.tex v1 v2 (only possible for papers, not notes/PAS)"
     exit 1
 fi
 
@@ -21,17 +23,36 @@ rm  auto_generated.bst BigDraft.pdf cms_draft_paper.pdf cms-tdr.cls pdfdraftcopy
 
 # defined target tex file and svn revisions to compare
 texfile="$1"
+# strip the tex file extension
+texfile="${texfile//.tex/}"
+
 svnold="$2"
 svnnew="$3"
 
 # if needed, convert HEAD to the actual commit
 if [ $svnnew = "HEAD" ]; then
-svnnew=`svn up -r HEAD | awk '{ print $3 }'`
-svnnew="${svnnew%?}"
+    svnnew=`svn up -r HEAD | awk '{ print $3 }'`
+    svnnew="${svnnew%?}"
 fi
 
-# strip the tex file extension
-texfile="${texfile//.tex/}"
+# if paper versions are passed as arguments instead of svn revisions, 
+# download the files and retrieve the corresponding svn revisions
+# currently only possible for papers
+for arg in svnnew svnold; do
+    eval svnver=\$$arg
+    if [[ $svnver == *"v"* ]]; then
+      if ! [[ $note_papers == "papers" ]]; then
+          echo "passing a version instead of svn revision only possible for papers, not for notes/PAS"
+          exit 1
+      fi
+      cern-get-sso-cookie -u https://icms-dev.cern.ch/tools/api/getCadiPaperPDF -o ~/private/sso-cookie --reprocess
+      curl -L -k --cookie ~/private/sso-cookie --cookie-jar ~/private/sso-cookie https://icms-dev.cern.ch/tools/api/getCadiPaperPDF?cadiFileName=${texfile}-paper-${svnver}.pdf -o ${texfile}-${svnver}.pdf && file ${texfile}-${svnver}.pdf
+      pdftotext -f 1 ${texfile}-${svnver}.pdf
+      svnver1=`grep Head\ Id ${texfile}-${svnver}.txt -a1 | tail -n1`
+      eval $arg=\$svnver1
+      rm ${texfile}-${svnver}.pdf ${texfile}-${svnver}.txt
+    fi
+done
 
 echo "Building diff between svn revision ${svnold} and ${svnnew} for ${note_papers} CADI entry ${texfile}"
 
