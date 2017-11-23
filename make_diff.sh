@@ -67,7 +67,7 @@ cp ${texfile}.tex ${texfile}.tex.bkp
 sed -i -- 's/\%FLATEX\-REM\://g' ${texfile}.flt
 mv ${texfile}.flt ${texfile}.tex
 cp ${texfile}.tex old.tex
-../../tdr --draft --copyPdf=old.pdf --style=paper b old
+../../../utils/trunk/tdr --draft --copyPdf=old.pdf --style=paper b old
 cp ../../../${note_papers}/tmp/old_temp.tex .
 cp ../../../${note_papers}/tmp/old_temp.bbl old_temp.bbl
 
@@ -79,7 +79,7 @@ cp ${texfile}.tex ${texfile}.tex.bkp
 sed -i -- 's/\%FLATEX\-REM\://g' ${texfile}.flt
 mv ${texfile}.flt ${texfile}.tex
 cp ${texfile}.tex new.tex
-../../tdr --draft --copyPdf=new.pdf --style=paper b new
+../../../utils/trunk/tdr --draft --copyPdf=new.pdf --style=paper b new
 cp ../../../${note_papers}/tmp/new_temp.tex .
 cp ../../../${note_papers}/tmp/new_temp.bbl new_temp.bbl
 
