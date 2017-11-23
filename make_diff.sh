@@ -56,6 +56,10 @@ done
 
 echo "Building diff between svn revision ${svnold} and ${svnnew} for ${note_papers} CADI entry ${texfile}"
 
+if [[ $note_papers == "proposals" ]]; then
+    note_papers="utils/trunk"
+fi
+
 # download and compile the "flattener" to parse all \input{file} in the main file
 wget -O flatex.c http://mirrors.ctan.org/support/flatex/flatex.c
 cc flatex.c -o flatex
