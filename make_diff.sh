@@ -56,7 +56,7 @@ done
 
 echo "Building diff between svn revision ${svnold} and ${svnnew} for ${note_papers} CADI entry ${texfile}"
 
-if [[ $note_papers == "proposals" ]]; then
+if [[ $note_papers == "papers" ]]; then
     note_papers="utils/trunk"
 fi
 
