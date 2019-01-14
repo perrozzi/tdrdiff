@@ -15,16 +15,25 @@ if [[ -n $(svn status -q . | awk '$1 ~ /[!?ABCDGKLMORST]/') ]]; then
     exit 1
 fi
 
+
 # detect whether it's a note or a paper from the working path
 note_papers=`echo $PWD | rev | cut -d'/' -f 3 | rev`
 
+echo 'note_papers = '$note_papers
+# read -p "Press any key to continue... " -n1 -s
+
 # dummy deletion of pre-existing symbolic links that could be present
 rm  auto_generated.bst BigDraft.pdf cms_draft_paper.pdf cms-tdr.cls pdfdraftcopy.sty pennames-pazo.sty ptdr-definitions.sty changepage.sty
+
+# read -p "Press any key to continue... " -n1 -s
 
 # defined target tex file and svn revisions to compare
 texfile="$1"
 # strip the tex file extension
 texfile="${texfile//.tex/}"
+
+echo 'texfile = '$texfile
+# read -p "Press any key to continue... " -n1 -s
 
 svnold="$2"
 svnnew="$3"
@@ -34,6 +43,10 @@ if [ $svnnew = "HEAD" ]; then
     svnnew=`svn up -r HEAD | awk '{ print $3 }'`
     svnnew="${svnnew%?}"
 fi
+
+echo 'svnold = '$svnold
+echo 'svnnew = '$svnnew
+
 
 # if paper versions are passed as arguments instead of svn revisions, 
 # download the files and retrieve the corresponding svn revisions
@@ -54,15 +67,21 @@ for arg in svnnew svnold; do
     fi
 done
 
+
 echo "Building diff between svn revision ${svnold} and ${svnnew} for ${note_papers} CADI entry ${texfile}"
+
 
 if [[ $note_papers == "papers" ]]; then
     note_papers="utils/trunk"
 fi
 
+echo "note_papers= " $note_papers
+
+
 # download and compile the "flattener" to parse all \input{file} in the main file
 wget -O flatex.c http://mirrors.ctan.org/support/flatex/flatex.c
 cc flatex.c -o flatex
+
 
 # update the repository to the "old" svn revision and compile the corresponding "old" pdf
 svn up -r ${svnold}
@@ -74,9 +93,9 @@ cp ${texfile}.tex old.tex
 ../../../utils/trunk/tdr --draft --copyPdf=old.pdf --style=paper b old
 cp ../../../${note_papers}/tmp/old_temp.tex .
 cp ../../../${note_papers}/tmp/old_temp.bbl old_temp.bbl
+mv ${texfile}.tex.bkp ${texfile}.tex
 
 # update the repository to the "new" svn revision and compile the corresponding "new" pdf
-cp ${texfile}.tex.bkp ${texfile}.tex
 svn up -r ${svnnew}
 cp ${texfile}.tex ${texfile}.tex.bkp
 ./flatex ${texfile}.tex > /dev/null
@@ -86,6 +105,8 @@ cp ${texfile}.tex new.tex
 ../../../utils/trunk/tdr --draft --copyPdf=new.pdf --style=paper b new
 cp ../../../${note_papers}/tmp/new_temp.tex .
 cp ../../../${note_papers}/tmp/new_temp.bbl new_temp.bbl
+mv ${texfile}.tex.bkp ${texfile}.tex
+
 
 # copy auto_generated.bib to a temporary file
 mv auto_generated.bib auto_generated.bib.bkp
@@ -100,17 +121,30 @@ ln -s ../../../utils/trunk/general/pennames-pazo.sty .
 ln -s ../../../utils/trunk/general/ptdr-definitions.sty .
 ln -s ../../../utils/trunk/general/changepage.sty .
 
+
 # download missing packages to ensure flawless pdflatex compilation
 wget -r -nH --cut-dirs=7 -nc ftp://ftp.tug.org/texlive/Contents/live/texmf-dist/tex/latex/adjustbox/
 wget -r -nH --cut-dirs=7 -nc ftp://ftp.tug.org/texlive/Contents/live/texmf-dist/tex/latex/collectbox/
 
 # download the standalone version of latexdiff
-wget -O latexdiff-so http://mirror.switch.ch/ftp/mirror/tex/support/latexdiff/latexdiff-so
+wget -O latexdiff-so https://mirror.hmc.edu/ctan/support/latexdiff/latexdiff-so
 chmod +x latexdiff-so
 # create the diff of "new" vs "old" for the main tex
 ./latexdiff-so --append-context2cmd="abstract" --exclude-textcmd="section,subsection,includegraphics" --math-markup=0 old_temp.tex new_temp.tex > diff_${texfile}_${svnold}_${svnnew}.tex
 # create the diff of "new" vs "old" for the bibliography
 ./latexdiff-so old_temp.bbl new_temp.bbl > diff_${texfile}_${svnold}_${svnnew}.bbl
+
+ls -lrt diff_${texfile}_${svnold}_${svnnew}.bbl diff_${texfile}_${svnold}_${svnnew}.tex
+echo ""
+echo "READ BEFORE TO CONTINUE!!!"
+echo ""
+echo "The program is now going to compile the files above: " diff_${texfile}_${svnold}_${svnnew}.bbl diff_${texfile}_${svnold}_${svnnew}.tex
+echo "If they have null size, a problem occurred and debug in the make_diff.sh is needed."
+echo "Even if the sizes are not null, it could be that an infinite loop will be triggered, due to LaTeX bugs in the old or new file version."
+echo "In this latter case, a manual editing of the tex and bbl files is needed to remove such a problem, then a recompilation will produce the awaited pdf."
+echo "Good luck!"
+echo ""
+read -p "Press any key to continue..." -n1 -s; echo ""
 
 # compile the diff 3 times to ensure proper bibliography links
 # use "yes" command syntax to allow pdflated to proceed on errors requiring simple "return"
@@ -118,10 +152,10 @@ yes "" | pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex
 yes "" | pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
 yes "" | pdflatex  diff_${texfile}_${svnold}_${svnnew}.tex 
 
-# restore original auto_generated.bib
+restore original auto_generated.bib
 rm auto_generated.bib
 mv auto_generated.bib.bkp auto_generated.bib
-mv ${texfile}.tex.bkp ${texfile}.tex
+# mv ${texfile}.tex.bkp ${texfile}.tex
 # cleanup: remove unused files and symbolic links
 rm diff_${texfile}_${svnold}_${svnnew}.aux diff_${texfile}_${svnold}_${svnnew}.out diff_${texfile}_${svnold}_${svnnew}.bbl diff_${texfile}_${svnold}_${svnnew}.blg
 # rm diff_${texfile}_${svnold}_${svnnew}.tex 
