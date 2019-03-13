@@ -17,7 +17,9 @@ cd tdr2/notes-or-papers/CADI-YY-XXX/trunk
 wget -O master.zip https://github.com/perrozzi/tdrdiff/archive/master.zip
 
 unzip master.zip
+
 cp cp2git/* ./
+
 rm master.zip
 
 chmod +x make_diff.sh
